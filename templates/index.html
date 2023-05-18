@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Files and Convert to JSON</title>
+    <style>
+        body {
+            background-color: #f7f7f7;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .upload-form {
+            width: 400px;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .form-group input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-group .add-file {
+            margin-top: 10px;
+        }
+        .form-group input[type="button"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .form-group input[type="button"]:hover {
+            background-color: #45a049;
+        }
+        .form-group input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .download-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .download-link a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .download-link a:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        function addFileInput() {
+            var fileInputsContainer = document.getElementById("file-inputs-container");
+
+            var inputGroup = document.createElement("div");
+            inputGroup.classList.add("form-group");
+
+            var label = document.createElement("label");
+            label.textContent = "Upload File:";
+
+            var inputFile = document.createElement("input");
+            inputFile.setAttribute("type", "file");
+            inputFile.setAttribute("name", "data_file");
+            inputFile.setAttribute("accept", ".txt, .csv, .xlsx, .xls, .json, .pdf, .dta");
+            inputFile.setAttribute("required", "");
+            inputFile.setAttribute("multiple", "");
+
+            inputGroup.appendChild(label);
+            inputGroup.appendChild(inputFile);
+
+            fileInputsContainer.appendChild(inputGroup);
+
+            fileInputsContainer.appendChild(inputGroup);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <form id="upload-form" class="upload-form" action="/tag_data" method="POST" enctype="multipart/form-data">
+            <h1>Upload Files and Convert to JSON</h1>
+            <div class="form-group">
+                <label for="data_file">Data Files:</label>
+                <input type="file" name="data_file" accept=".txt, .csv, .xlsx, .xls, .json, .pdf, .dta" required multiple>
+            </div>
+        
+            <div id="file-inputs-container">
+                <div class="form-group">
+                    <input type="button" id="add-file-button" class="add-file" value="Upload Next File" onclick="addFileInput()">
+                </div>
+            </div>
+        
+            <div class="form-group">
+                <input type="submit" value="Convert to JSON">
+            </div>
+        </form>
+        
+        <div class="download-link">
+            <a href="/json/metadata.json" target="_blank">Download JSON File</a>
+        </div>
+    </div>
+</body>
+</html>
+
