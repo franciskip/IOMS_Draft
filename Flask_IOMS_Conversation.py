@@ -23,9 +23,13 @@ def read_csv_file(file):
 # Function to convert text file to DataFrame
 def read_text_file(file):
     # Add custom logic to handle variations in text file format if needed
-    with open(file, 'r') as f:
-        lines = f.readlines()
-    return pd.DataFrame({'data': lines})
+    try:
+        with open(file, 'r') as f:
+            lines = f.readlines()
+        return pd.DataFrame({'data': lines})
+    except UnicodeDecodeError:
+        return None  # Unable to read the file as text
+
 
 # Function to convert JSON file to DataFrame
 def read_json_file(file):
@@ -35,23 +39,19 @@ def read_json_file(file):
     return pd.DataFrame(data)
 
 # Function to convert PDF file to DataFrame
+import PyPDF2
 def read_pdf_file(file):
     # Add custom logic to handle variations in PDF file format if needed
     with open(file, 'rb') as f:
-        pdf_reader = PyPDF2.PdfFileReader(f)
-        num_pages = pdf_reader.numPages
+        pdf_reader = PyPDF2.PdfReader(f)
+        num_pages = len(pdf_reader.pages)
         text = ''
         for page_num in range(num_pages):
-            page = pdf_reader.getPage(page_num)
+            page = pdf_reader.pages[page_num]
             text += page.extract_text()
     return pd.DataFrame({'data': text.split('\n')})
 
-# Function to convert Stata (dta) file to DataFrame
-def read_stata_file(file):
-    # Add custom logic to handle variations in Stata file format if needed
-    return pd.read_stata(file)
 
-# Function to combine data files and Stata files into OIMS metadata
 def convert_to_oims(data_files, stata_files):
     metadata = {
         'data_description': [],
@@ -60,26 +60,35 @@ def convert_to_oims(data_files, stata_files):
 
     for data_file in data_files:
         if data_file:
-            
-        # Check if data file is provided
-            data_description = read_file(data_file)
+            # Save the data file to the upload folder
+            data_file_path = os.path.join(app.config['UPLOAD_FOLDER'], data_file.filename)
+            data_file.save(data_file_path)
 
-        if data_description is not None:
-            metadata['data_description'].extend(data_description.to_dict(orient='records'))
+            # Check if data file is provided
+            data_description = read_file(data_file_path)
+
+            if data_description is not None:
+                metadata['data_description'].extend(data_description.to_dict(orient='records'))
 
     for stata_file in stata_files:
-        if stata_file:  # Check if stata file is provided
-            stata_data = read_file(stata_file)
+        if stata_file:
+            # Save the stata file to the upload folder
+            stata_file_path = os.path.join(app.config['UPLOAD_FOLDER'], stata_file.filename)
+            stata_file.save(stata_file_path)
+
+            # Check if stata file is provided
+            stata_data = read_file(stata_file_path)
 
             if stata_data is not None:
                 metadata['stata_data'].extend(stata_data.to_dict(orient='records'))
 
-
     return metadata
+
+
 
 # Determine the file format and read the file as DataFrame
 def read_file(file):
-    file_extension = file.filename.split('.')[-1].lower()
+    file_extension = file.split('.')[-1].lower()
     if file_extension in ['xlsx', 'xls']:
         return read_excel_file(file)
     elif file_extension == 'csv':
@@ -94,6 +103,7 @@ def read_file(file):
         return read_stata_file(file)
     else:
         return None  # Unsupported file format
+
 
 @app.route('/')
 def index():
